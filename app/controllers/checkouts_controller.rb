@@ -43,6 +43,8 @@ class CheckoutsController < ApplicationController
 
 
 
+
+
   def confirmation
   end
 
