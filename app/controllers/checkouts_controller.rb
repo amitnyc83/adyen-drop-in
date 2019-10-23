@@ -2,6 +2,8 @@ require 'json'
 
 class CheckoutsController < ApplicationController
 
+  
+
 
   def payments
     payment_methods_response = Checkout.get_payment_methods.body
@@ -40,10 +42,6 @@ class CheckoutsController < ApplicationController
         # Handle other payment result codes
     end
   end
-
-
-
-
 
   def confirmation
   end
