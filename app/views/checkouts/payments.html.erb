@@ -1,0 +1,69 @@
+<div id="dropin"></div>
+
+<script>
+ $(document).ready(function() {
+    const configuration = {
+      locale: "en_US",
+      environment: "test",
+      originKey: "<%= ENV['ADYEN_ORIGIN_KEY'] %>",
+      paymentMethodsResponse: <%= raw @resp %>
+    };
+
+    const checkout = new AdyenCheckout(configuration)
+
+
+    const dropin = checkout
+    .create('dropin', {
+      paymentMethodsConfiguration: {
+        card: { // Example optional configuration for Cards
+          hasHolderName: true,
+          holderNameRequired: true,
+          enableStoreDetails: true,
+          name: 'Credit or debit card'
+        }
+      },
+      onSubmit: (state, dropin) => {
+        function makePayment(data){
+          return $.ajax({
+            method: "POST",
+            url: "/checkout",
+            data
+          });
+        }
+        if (state.isValid) {
+         makePayment(state.data)
+         .then(res => {
+           if (res.paymentData) {
+             dropin.handleAction(res);
+            }
+          })
+          .catch(error => {
+           throw Error(error);
+          });
+        }
+      },
+
+      onAdditionalDetails: (state, dropin) => {
+        function makeDetailsCall(data){
+          return $.ajax({
+            method: "POST",
+            url: "checkout/details",
+            data
+          });
+        }
+        if (state.isValid){
+          makeDetailsCall(state.data)
+          .then(res => {
+            if (res.paymentData){
+              dropin.handleAction(res);
+            }
+          })
+          .catch(error => {
+            throw Error(error);
+          });
+        }
+      }
+    })
+    .mount('#dropin');
+  });
+</script>
